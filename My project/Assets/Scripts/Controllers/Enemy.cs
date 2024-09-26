@@ -18,7 +18,6 @@ public class Enemy : MonoBehaviour
     private void Update()
     {
         EnemyMovement();
-        Debug.Log(transform.position);
     }
 
 }
