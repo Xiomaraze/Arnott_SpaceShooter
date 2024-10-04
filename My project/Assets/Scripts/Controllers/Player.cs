@@ -23,6 +23,21 @@ public class Player : MonoBehaviour
         acceleration = targetSpeed / timeTakenToMaxSpeed;
     }
 
+    public void EnemyRadar(float radius, int circlePoints)
+    {
+        float dist = Vector2.Distance(transform.position, enemyTransform.position);
+        if (dist < radius)
+        {
+            //draw the red circle here
+            //m really tired so this is requiring more brain power than i have available, but i can do it
+            
+        }
+        else
+        {
+            //draw the green circle here
+        }
+    }
+
     public void PlayerMovement()
     {
         //Tasks 1A, 1B, 1C
