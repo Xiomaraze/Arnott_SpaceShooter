@@ -18,6 +18,8 @@ public class Player : MonoBehaviour
     bool forBack;
     bool leftRight;
 
+    public GameObject powerupPrefab;
+
     private void Start()
     {
         acceleration = targetSpeed / timeTakenToMaxSpeed;
@@ -29,46 +31,62 @@ public class Player : MonoBehaviour
         float dist = Vector2.Distance(transform.position, enemyTransform.position);
         float tempX = 0;
         float tempY = 0;
+        Color proxColour = Color.white;
+
+        List<Vector2> circled = new List<Vector2>();
+        //draw the red circle here
+        //m really tired so this is requiring more brain power than i have available, but i can do it
+        for (int i = 1; i < circlePoints; i++)
+        {
+            float angle = circleAngles * i;
+            angle = angle * 100;
+            angle = Mathf.Round(angle);
+            angle = angle / 100;
+            //bellow just asking for the angle returned as if it were in the pos x pos y axis area while keeping in mind where the x and y on the full angle would actually end up
+            if (angle > 270)
+            {
+                //the y will be negative but the X pos
+                angle -= 270;
+                tempX = Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
+                tempY = Mathf.Sin(Mathf.Deg2Rad * angle) * radius * -1;
+            }
+            else if (angle > 180)
+            {
+                //the x and y will be neg
+                angle -= 180;
+            }
+            else if (angle > 90)
+            {
+                //the x will be neg, the y pos
+                angle -= 90;
+            }
+            else
+            {
+                tempX = Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
+                tempY = Mathf.Sin(Mathf.Deg2Rad * angle) * radius;
+            }
+            tempX += transform.position.x;
+            tempY += transform.position.y;
+            circled.Add(new Vector2(tempX, tempY));
+        }
         if (dist < radius)
         {
-            List<Vector2> circled = new List<Vector2>();
-            //draw the red circle here
-            //m really tired so this is requiring more brain power than i have available, but i can do it
-            for (int i = 1; i < circlePoints; i++)
-            {
-                float angle = circleAngles * i;
-                angle = angle * 100;
-                angle = Mathf.Round(angle);
-                angle = angle / 100;
-                //bellow just asking for the angle returned as if it were in the pos x pos y axis area while keeping in mind where the x and y on the full angle would actually end up
-                if (angle > 270)
-                {
-                    //the y will be negative but the X pos
-                    angle -= 270;
-                    tempX = Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
-                    tempY = Mathf.Sin(Mathf.Deg2Rad * angle) * radius * -1;
-                }
-                else if (angle > 180)
-                {
-                    //the x and y will be neg
-                    angle -= 180;
-                }
-                else if (angle > 90)
-                {
-                    //the x will be neg, the y pos
-                    angle -= 90;
-                }
-                else
-                {
-                    tempX = Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
-                    tempY = Mathf.Sin(Mathf.Deg2Rad * angle) * radius;
-                }
-                circled.Add(new Vector2(tempX, tempY));
-            }
-        }
+            //draw the red circle
+            proxColour = Color.red;        }
         else
         {
             //draw the green circle here
+        }
+        for (int i = 0; i < circled.Count - 1; i++)
+        {
+            if (i == 0)
+            {
+                Debug.DrawLine(circled[0], circled[circled.Count - 1], proxColour);
+            }
+            else
+            {
+                Debug.DrawLine(circled[i], circled[i - 1], proxColour);
+            }
         }
     }
 
