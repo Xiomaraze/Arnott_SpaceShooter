@@ -25,12 +25,46 @@ public class Player : MonoBehaviour
 
     public void EnemyRadar(float radius, int circlePoints)
     {
+        float circleAngles = 360 / circlePoints;
         float dist = Vector2.Distance(transform.position, enemyTransform.position);
+        float tempX;
+        float tempY;
         if (dist < radius)
         {
+            List<Vector2> circled = new List<Vector2>();
             //draw the red circle here
             //m really tired so this is requiring more brain power than i have available, but i can do it
-            
+            for (int i = 1; i < circlePoints; i++)
+            {
+                float angle = circleAngles * i;
+                angle = angle * 100;
+                angle = Mathf.Round(angle);
+                angle = angle / 100;
+                //bellow just asking for the angle returned as if it were in the pos x pos y axis area while keeping in mind where the x and y on the full angle would actually end up
+                if (angle > 270)
+                {
+                    //the y will be negative but the X pos
+                    angle -= 270;
+                    tempX = Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
+                    tempY = Mathf.Sin(Mathf.Deg2Rad * angle) * radius * -1;
+                }
+                else if (angle > 180)
+                {
+                    //the x and y will be neg
+                    angle -= 180;
+                }
+                else if (angle > 90)
+                {
+                    //the x will be neg, the y pos
+                    angle -= 90;
+                }
+                else
+                {
+                    tempX = Mathf.Cos(Mathf.Deg2Rad * angle) * radius;
+                    tempY = Mathf.Sin(Mathf.Deg2Rad * angle) * radius;
+                }
+                circled.Add(new Vector2(tempX, tempY));
+            }
         }
         else
         {
