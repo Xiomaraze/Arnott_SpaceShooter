@@ -27,8 +27,8 @@ public class Player : MonoBehaviour
     {
         float circleAngles = 360 / circlePoints;
         float dist = Vector2.Distance(transform.position, enemyTransform.position);
-        float tempX;
-        float tempY;
+        float tempX = 0;
+        float tempY = 0;
         if (dist < radius)
         {
             List<Vector2> circled = new List<Vector2>();
