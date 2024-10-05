@@ -35,12 +35,27 @@ public class Moon : MonoBehaviour
         //checking that its the right number of points here
         //Debug.Log(orbitPoints.Count);
         //okay i added it to player to test, and it SHOULD be disabled but if it isnt... oops?
-
+        //i really want to make this a coroutine so it doesnt stop all processes to run this over and over, but whatever
+        int moonLocation = 0;
+        if (moonLocation == 16)
+        {
+            moonLocation = 0;
+            return;
+        }
+        else
+        {
+            Vector2 tempPos = transform.position;
+            if (tempPos == orbitPoints[moonLocation])
+            {
+                moonLocation++;
+            }
+            transform.position = Vector2.Lerp(transform.position, orbitPoints[moonLocation], speed * Time.deltaTime);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        OrbitalMotion(10, 5, planetTransform);
     }
 }
