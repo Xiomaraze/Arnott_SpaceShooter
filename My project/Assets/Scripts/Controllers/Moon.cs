@@ -45,12 +45,16 @@ public class Moon : MonoBehaviour
         else
         {
             Vector2 tempPos = transform.position;
-            if (tempPos == orbitPoints[moonLocation])
+            if (tempPos == orbitPoints[moonLocation]) //needs to wait until it hits the point before starting to move to the next one
             {
                 moonLocation++;
             }
             transform.position = Vector2.Lerp(transform.position, orbitPoints[moonLocation], speed * Time.deltaTime);
         }
+        //for (int i = 0; i < orbitPoints.Count - 1; i++)
+        //{
+        //    Debug.Log(orbitPoints[i]);
+        //}
     }
 
     // Update is called once per frame
