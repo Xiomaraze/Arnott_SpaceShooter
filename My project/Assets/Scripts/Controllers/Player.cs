@@ -25,6 +25,36 @@ public class Player : MonoBehaviour
         acceleration = targetSpeed / timeTakenToMaxSpeed;
     }
 
+    public void SpawnPowerups(float radius, int numOfPowerups)
+    {
+        float degSeparation = 360 / numOfPowerups; //this probably gives us a decimal with a ridiculous number of decimal places
+        //so were gonna round it to 2 decimal places
+        degSeparation *= 100;
+        degSeparation = Mathf.Round(degSeparation);
+        degSeparation /= 100;
+        //should be a nice 2 decimal place number now
+        //now we get to assign all the points, what fun help i forgot how to make a list in the last 10 minutes
+        List <Vector2> powerupSpawns = new List<Vector2>();
+        List <GameObject> powerupObjects = new List<GameObject>();
+        float powerupX = 0;
+        float powerupY = 0; //assigning pointless x and y values so unity doesnt lose its literal mind
+        for (int i = 0; i < numOfPowerups; i++)
+        {
+            powerupX = Mathf.Cos(Mathf.Deg2Rad * degSeparation * i) * radius;
+            powerupY = Mathf.Sin(Mathf.Deg2Rad * degSeparation * i) * radius; //the * i is to make sure its the right angle in total on the circle, since the 0 angle is directly on the x axis
+            //add the player transform so its centered on the player
+            powerupX += transform.position.x;
+            powerupY += transform.position.y;
+            //now make it a new vector2 poing to spawn the future powerup at
+            powerupSpawns.Add(new Vector2(powerupX, powerupY));
+        }
+        //now we actually spawn them as a list
+        foreach (Vector2 spawn in powerupSpawns)
+        {
+            powerupObjects.Add(Instantiate(powerupPrefab, new Vector3(spawn.x, spawn.y, 0), Quaternion.identity));
+        }
+    }
+
     public void EnemyRadar(float radius, int circlePoints)
     {
         float circleAngles = 360 / circlePoints;
