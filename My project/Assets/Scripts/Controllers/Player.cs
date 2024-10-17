@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Player : MonoBehaviour
 {
@@ -20,9 +22,19 @@ public class Player : MonoBehaviour
 
     public GameObject powerupPrefab;
 
+    public GameObject minesPrefab;
+
+    List <GameObject> mines;
+    bool bombTrail = false;
+    Vector2 prevPosition;
+    float angleOfTravel; //assumes player is (0,0) and gets the angle which they are traveling in if 0 degrees is directly right
+    public float mineSpawnDistance = 0.1f;
+    Vector3 mineSpawn = Vector3.zero;
+
     private void Start()
     {
         acceleration = targetSpeed / timeTakenToMaxSpeed;
+        prevPosition = transform.position;
     }
 
     public void SpawnPowerups(float radius, int numOfPowerups)
@@ -192,10 +204,104 @@ public class Player : MonoBehaviour
         //speed = velocity.magnitude.ToString();
     }
 
+    public void SpawnBombTrail()
+    {
+
+        //checking if mouse button is being held for bomb trail spawning
+        if (Input.GetMouseButton(0))
+        {
+            bombTrail = true;
+        }
+        else
+        {
+            bombTrail = false;
+        }
+        //bombtrail just handles whether or not the program needs to actually spawn the bombs
+        if (bombTrail)
+        {
+            //need direction the player is moving to spawn appropriate place for bomb
+            Vector2 tempTracker = transform.position;
+            tempTracker = tempTracker - prevPosition; //shifts previous position as if player is currently at 0,0
+            tempTracker.Normalize();
+            angleOfTravel = Mathf.Atan2(tempTracker.y, tempTracker.x);
+            mineSpawn.x = Mathf.Cos(angleOfTravel);
+            mineSpawn.y = Mathf.Sin(angleOfTravel);
+            if (mines.Count == 0) //exclusively to handle when no bombs are already existing on screen
+            {
+                Debug.Log("Ding");
+                mines.Add(Instantiate(minesPrefab, mineSpawn, Quaternion.identity));
+                //hopefully this just adds the first mine to the list?
+            }
+            else
+            {
+                if (Vector2.Distance(transform.position, mines[mines.Count - 1].transform.position) >= mineSpawnDistance) //checks distance between player and the last spawned mine against the required distance
+                {
+                    //if player is at or further than the min distance, spawn a new mine
+                    mines.Add(Instantiate(minesPrefab, mineSpawn, Quaternion.identity));
+                }
+                else
+                {
+                    //do nothing if its not far enough yet
+                }
+            }
+        }
+    }
+
+    public void MineExploded(Transform mineLocation)
+    {
+        int removeNum = 999;
+        for (int i = 0; i < mines.Count; i++)
+        {
+            if (mines[i].transform == mineLocation)
+            {
+                removeNum = i;
+            }
+        }
+        mines.RemoveAt(removeNum);
+    }
+
+    //public void ChasedTest(GameObject orb)
+    //{
+    //    SpriteRenderer sprite = orb.GetComponent<SpriteRenderer>();
+    //    sprite.color = Color.white;
+    //}
+
+    //yay testing time
+    //i hate myself
+    //public List<GameObject> testDestroylist;
+
+    //void TestDestroy (Transform objectTransform)
+    //{
+    //    Debug.Log(testDestroylist.Count);
+    //    for (int i = 0; i < testDestroylist.Count;i++)
+    //    {
+    //        if (testDestroylist[i].transform == objectTransform)
+    //        {
+    //            testDestroylist.RemoveAt(i);
+    //        }
+    //    }
+    //    Debug.Log (testDestroylist.Count);
+    //}
+
     void Update()
     {
         PlayerMovement();
-        
+        //for (int i = 0; i < testDestroylist.Count; i++)
+        //{
+        //    Debug.Log(testDestroylist[i].name);
+        //}
+        //if (testDestroylist.Count == 4)
+        //{
+        //    TestDestroy(testDestroylist[1].transform);
+        //}
+        //else
+        //{
+        //}
+        //above commented out stuff was all me testing how removeat worked
+
+        //You will wanna uncomment the below to see how i tried to do what i did
+        //its just commented out so i can work on my next task
+        //SpawnBombTrail();
     }
 
 }
