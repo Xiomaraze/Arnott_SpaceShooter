@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting.YamlDotNet.Serialization;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -30,6 +31,8 @@ public class Player : MonoBehaviour
     float angleOfTravel; //assumes player is (0,0) and gets the angle which they are traveling in if 0 degrees is directly right
     public float mineSpawnDistance = 0.1f;
     Vector3 mineSpawn = Vector3.zero;
+
+    public List<GameObject> meteors = new List<GameObject>();
 
     private void Start()
     {
@@ -260,6 +263,118 @@ public class Player : MonoBehaviour
         mines.RemoveAt(removeNum);
     }
 
+    public float shieldDistance;
+    List<Vector2> shieldPoints = new List<Vector2>(8);// 8 points should be cardinals and inter-cardinals 
+
+    float FindX (float degree, float distance)
+    {
+        float tempFindX = Mathf.Cos(Mathf.Deg2Rad * degree);
+        tempFindX = tempFindX * distance;
+        tempFindX += transform.position.x;
+        return tempFindX;
+    }
+    float FindY (float degree, float distance)
+    {
+        float tempFindY = Mathf.Sin(Mathf.Deg2Rad * degree);
+        tempFindY = tempFindY * distance;
+        tempFindY += transform.position.y;
+        return tempFindY;
+    }
+
+    void DrawShield()
+    {
+        //calculation temporaries
+        float tempX = 0f;
+        float tempY = 0f;
+        shieldPoints.Clear();
+        //East, 0 degrees
+        shieldPoints.Add(new Vector2(transform.position.x + shieldDistance, transform.position.y));
+        //north east, 45 degrees
+        tempX = FindX(45f, shieldDistance);
+        tempY = FindY(45f, shieldDistance);
+        shieldPoints.Add(new Vector2(tempX, tempY));
+        // north
+        tempX = FindX(90f, shieldDistance);
+        tempY = FindY(90f, shieldDistance);
+        shieldPoints.Add(new Vector2(tempX, tempY));
+        //north west
+        tempX = FindX(135f, shieldDistance);
+        tempY = FindY(135f, shieldDistance);
+        shieldPoints.Add(new Vector2(tempX, tempY));
+        // west
+        tempX = FindX(180f, shieldDistance);
+        tempY = FindY(180f, shieldDistance);
+        shieldPoints.Add(new Vector2(tempX, tempY));
+        // south west
+        tempX = FindX(225f, shieldDistance);
+        tempY = FindY(225f, shieldDistance);
+        shieldPoints.Add(new Vector2(tempX, tempY));
+        //south
+        tempX = FindX(270f, shieldDistance);
+        tempY = FindY(270f, shieldDistance);
+        shieldPoints.Add(new Vector2(tempX, tempY));
+        //south east
+        tempX = FindX(315f, shieldDistance);
+        tempY = FindY(315f, shieldDistance);
+        shieldPoints.Add(new Vector2(tempX, tempY));
+        // yay all the points are set, now draw it please'
+        for (int i = 1; i < shieldPoints.Count; i++)
+        {
+            Debug.DrawLine(shieldPoints[i], shieldPoints[i - 1], Color.magenta);
+        }
+        Debug.DrawLine(shieldPoints[shieldPoints.Count - 1], shieldPoints[0], Color.magenta);
+    }
+    public void DeflectShield()
+    {
+        //here we go task 2!
+        //starting with the basic, this is the shield thing
+        DrawShield();
+        //woo draw shield is being nice!
+        //okay now meteors, im just gonna check it up against the list of meteors
+        foreach (GameObject m in meteors)
+        {
+            float tempDist = Vector2.Distance(transform.position, m.transform.position);
+            if (tempDist <= shieldDistance)
+            {
+                //reflect! new method!
+                Vector2 tempShieldpoint = transform.position - m.transform.position;
+                tempShieldpoint.Normalize();
+                tempShieldpoint = tempShieldpoint * shieldDistance;
+                //where its being reflected from
+                Vector2 shieldNormal = Vector2.Perpendicular(tempShieldpoint);
+                //its normal/perpendicular necessary for the reflect method
+                //okay so the indirection will be
+                Meteor meteorScript = m.GetComponent<Meteor>();
+                Vector2 inDir = meteorScript.direction;
+                //so this is then the out direction
+                Vector2 outDir = Vector2.Reflect(inDir, shieldNormal);
+                Vector3 outDir3 = outDir;
+                meteorScript.direction = outDir3;
+                //god i hope that works, because theres like no explanation for the reflect method in vector2 on the unity API
+            }
+            else
+            {
+                //nothing interesting
+            }
+        }
+    }
+
+    public void AimThisWay ()
+    {
+        //okay lets get the direction first from the movement which i guess is velocity
+        //so now i need the angle from the 0 angle towards the velocity point?
+        //im already giving myself a headache here WAIT THERES THE LOOKAT IN THE TRANSFORM STUFF
+        Vector3 target = velocity;
+        target = transform.position + target;
+        transform.LookAt(target);
+        //okay so the sprite dissapears, i think because its handling a vector 3 as lookat, but well get there
+        //first figuring out how lookat works
+        //okay WHY, does everything on the 2D plane rotate around the Z axis, thats silly
+
+        //keely im about to cry, this makes no sense to me. how am i supposed to understand euler
+        //i give on this task
+    }
+
     //public void ChasedTest(GameObject orb)
     //{
     //    SpriteRenderer sprite = orb.GetComponent<SpriteRenderer>();
@@ -302,6 +417,7 @@ public class Player : MonoBehaviour
         //You will wanna uncomment the below to see how i tried to do what i did
         //its just commented out so i can work on my next task
         //SpawnBombTrail();
+        DeflectShield();
     }
 
 }
