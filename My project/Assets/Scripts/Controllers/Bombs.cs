@@ -80,8 +80,8 @@ public class Bombs : MonoBehaviour
     void Update()
     {
         //and now we create chaos
-        //Chase();
-        //Boom();
+        Chase();
+        Boom();
         //test the send message thing, madness this is
         //player.SendMessage("ChasedTest", gameObject, SendMessageOptions.RequireReceiver); it works!
     }
